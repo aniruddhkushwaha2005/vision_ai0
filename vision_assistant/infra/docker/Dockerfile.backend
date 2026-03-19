@@ -1,0 +1,65 @@
+# ── Stage 1: Base with CUDA support ──────────────────────────────────────────
+FROM nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04 AS base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 python3.11-dev python3-pip \
+    libgl1-mesa-glx libglib2.0-0 libsm6 libxrender1 libxext6 \
+    ffmpeg espeak-ng \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -sf /usr/bin/python3.11 /usr/bin/python3 \
+    && ln -sf /usr/bin/python3.11 /usr/bin/python
+
+# ── Stage 2: Dependencies ─────────────────────────────────────────────────────
+FROM base AS deps
+
+WORKDIR /install
+
+COPY requirements.txt .
+
+# Install PyTorch with CUDA first (large — cache layer separately)
+RUN pip install torch==2.4.1 torchvision==0.19.1 --index-url https://download.pytorch.org/whl/cu121
+
+# Install remaining deps
+RUN pip install -r requirements.txt
+
+# ── Stage 3: Model download ───────────────────────────────────────────────────
+FROM deps AS model-download
+
+RUN python3 -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
+RUN python3 -c "import torch; torch.hub.load('intel-isl/MiDaS', 'MiDaS_small', trust_repo=True)"
+
+# ── Stage 4: Production image ─────────────────────────────────────────────────
+FROM base AS production
+
+WORKDIR /app
+
+# Copy installed packages from deps stage
+COPY --from=deps /usr/local/lib/python3.11/dist-packages /usr/local/lib/python3.11/dist-packages
+COPY --from=deps /usr/local/bin /usr/local/bin
+
+# Copy pre-downloaded models
+COPY --from=model-download /root/.cache/torch /root/.cache/torch
+COPY --from=model-download /root/.cache/huggingface /root/.cache/huggingface
+
+# Copy application code
+COPY app/ ./app/
+COPY .env.example ./.env.example
+
+# Create non-root user
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8000/api/v1/health || exit 1
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", \
+     "--workers", "1", "--log-level", "info"]
