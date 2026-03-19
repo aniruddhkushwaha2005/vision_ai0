@@ -23,7 +23,7 @@ import {
   View,
 } from 'react-native';
 import { Camera, useCameraDevice, useFrameProcessor } from 'react-native-vision-camera';
-import { runOnJS } from 'react-native-reanimated';
+import { runOnJS, useSharedValue } from 'react-native-reanimated';
 import { useIsFocused } from '@react-navigation/native';
 
 import VisionWebSocketService, {
@@ -66,7 +66,7 @@ export default function NavigationScreen() {
   const [language, setLanguage] = useState<'en' | 'hi'>('en');
   const [fps, setFps] = useState(0);
 
-  const lastFrameSentAt = useRef<number>(0);
+  const lastFrameSentAt = useSharedValue<number>(0);
   const fpsCounter = useRef({ count: 0, last: Date.now() });
 
   // ── WebSocket lifecycle ───────────────────────────────────────────────────
@@ -74,8 +74,8 @@ export default function NavigationScreen() {
     const ws = new VisionWebSocketService(API_WS_URL);
     wsRef.current = ws;
 
-    ws.on('stateChange', setConnectionState);
-    ws.on('result', (result: StreamResult) => {
+    const offState = ws.on('stateChange', setConnectionState);
+    const offResult = ws.on('result', (result: StreamResult) => {
       setLastResult(result);
       if (result.isDangerAlert || result.decision !== lastResult?.decision) {
         Vibration.vibrate(VIBRATION_PATTERNS[result.decision] || [0, 100]);
@@ -88,11 +88,14 @@ export default function NavigationScreen() {
         fpsCounter.current = { count: 0, last: now };
       }
     });
-    ws.on('error', () => {});
+    const offError = ws.on('error', () => {});
 
     ws.connect();
 
     return () => {
+      offState();
+      offResult();
+      offError();
       ws.disconnect();
       ws.removeAllListeners();
       wsRef.current = null;
@@ -147,7 +150,6 @@ export default function NavigationScreen() {
         device={device}
         isActive={isFocused}
         frameProcessor={frameProcessor}
-        frameProcessorFps={FRAME_RATE_HZ}
         photo={false}
         video={false}
       />

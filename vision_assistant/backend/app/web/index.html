@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vision Assistant – Web Client</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #020617;
+        --card: #020617;
+        --accent: #22c55e;
+        --danger: #ef4444;
+        --border: #1f2937;
+        --text-muted: #9ca3af;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top, #0f172a 0, #020617 45%);
+        color: #f9fafb;
+        min-height: 100vh;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+      }
+      .shell {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 1120px;
+        padding: 24px 16px 32px;
+        gap: 16px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .title {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 4px 10px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(75, 85, 99, 0.7);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+      }
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: #f97316;
+      }
+      .status-dot.ok {
+        background: #22c55e;
+      }
+      .status-dot.bad {
+        background: #ef4444;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+        gap: 16px;
+      }
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+      .card {
+        background: radial-gradient(circle at top left, rgba(55, 65, 81, 0.36), transparent 55%),
+          radial-gradient(circle at top right, rgba(37, 99, 235, 0.18), transparent 55%),
+          var(--card);
+        border-radius: 18px;
+        border: 1px solid rgba(31, 41, 55, 0.9);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.7);
+        padding: 16px 16px 18px;
+        backdrop-filter: blur(18px);
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        gap: 8px;
+      }
+      .card-title {
+        font-size: 15px;
+        font-weight: 500;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: #9ca3af;
+      }
+      .badge {
+        border-radius: 999px;
+        padding: 2px 8px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+      .video-shell {
+        position: relative;
+        border-radius: 14px;
+        border: 1px solid rgba(31, 41, 55, 0.9);
+        overflow: hidden;
+        background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), #020617);
+        min-height: 220px;
+      }
+      video,
+      canvas {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      canvas {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        pointer-events: none;
+      }
+      .overlay-top {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 12px;
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+      .overlay-bottom {
+        display: flex;
+        justify-content: center;
+        padding: 10px 12px 12px;
+      }
+      .decision-chip {
+        min-width: 170px;
+        text-align: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(3, 7, 18, 0.96));
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .decision-main {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+      }
+      .decision-sub {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+      .danger {
+        border-color: rgba(248, 113, 113, 0.9);
+        box-shadow: 0 0 40px rgba(248, 113, 113, 0.4);
+      }
+      .danger .decision-main {
+        color: var(--danger);
+      }
+      .danger .decision-sub {
+        color: #fecaca;
+      }
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+      }
+      .row-label {
+        color: var(--text-muted);
+      }
+      .row-value {
+        font-weight: 500;
+      }
+      .row-value.ok {
+        color: var(--accent);
+      }
+      .row-value.bad {
+        color: var(--danger);
+      }
+      .controls {
+        display: flex;
+        gap: 8px;
+        margin-top: 4px;
+      }
+      button {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: rgba(15, 23, 42, 0.95);
+        color: #e5e7eb;
+        padding: 6px 12px;
+        font-size: 12px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      button.primary {
+        border-color: rgba(59, 130, 246, 0.9);
+        background: radial-gradient(circle at top left, #3b82f6, #1d4ed8);
+        color: white;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      .log {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 11px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(31, 41, 55, 0.9);
+        max-height: 220px;
+        overflow: auto;
+        white-space: pre-wrap;
+        color: var(--text-muted);
+      }
+      a {
+        color: #60a5fa;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <div class="title">
+          <span>🦯 Vision Assistant</span>
+          <span class="pill">
+            <span class="status-dot ok" id="api-dot"></span>
+            <span id="api-status">API: connecting…</span>
+          </span>
+        </div>
+        <div class="pill">
+          <span>Web Client · Experimental</span>
+        </div>
+      </header>
+
+      <div class="grid">
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Camera &amp; Navigation</div>
+            <div class="badge" id="ws-badge">WS: disconnected</div>
+          </div>
+          <div class="video-shell">
+            <video id="video" autoplay playsinline muted></video>
+            <canvas id="canvas"></canvas>
+            <div class="overlay">
+              <div class="overlay-top">
+                <span id="fps-label">FPS: 0</span>
+                <span id="latency-label">Latency: — ms</span>
+              </div>
+              <div class="overlay-bottom">
+                <div class="decision-chip" id="decision-chip">
+                  <div class="decision-main" id="decision-main">IDLE</div>
+                  <div class="decision-sub" id="decision-sub">
+                    Allow camera + connect &amp; press Start.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="controls">
+            <button id="btn-permissions">1. Enable Camera</button>
+            <button id="btn-connect" class="primary">2. Connect &amp; Start</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Diagnostics</div>
+            <div class="badge">
+              <span class="status-dot" id="danger-dot"></span>
+              <span id="danger-label">No danger</span>
+            </div>
+          </div>
+
+          <div class="stack">
+            <div class="row">
+              <div class="row-label">Backend Docs</div>
+              <div class="row-value">
+                <a href="/docs" target="_blank" rel="noreferrer">/docs</a>
+              </div>
+            </div>
+            <div class="row">
+              <div class="row-label">WebSocket Endpoint</div>
+              <div class="row-value" id="ws-url">ws://localhost:8000/api/v1/stream</div>
+            </div>
+            <div class="row">
+              <div class="row-label">Last navigation</div>
+              <div class="row-value" id="nav-label">None yet</div>
+            </div>
+            <div class="row">
+              <div class="row-label">Objects</div>
+              <div class="row-value" id="objects-label">–</div>
+            </div>
+          </div>
+
+          <div class="log" id="log"></div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+
+      const btnPermissions = document.getElementById('btn-permissions');
+      const btnConnect = document.getElementById('btn-connect');
+      const apiDot = document.getElementById('api-dot');
+      const apiStatus = document.getElementById('api-status');
+      const wsBadge = document.getElementById('ws-badge');
+      const decisionChip = document.getElementById('decision-chip');
+      const decisionMain = document.getElementById('decision-main');
+      const decisionSub = document.getElementById('decision-sub');
+      const fpsLabel = document.getElementById('fps-label');
+      const latencyLabel = document.getElementById('latency-label');
+      const dangerDot = document.getElementById('danger-dot');
+      const dangerLabel = document.getElementById('danger-label');
+      const navLabel = document.getElementById('nav-label');
+      const objectsLabel = document.getElementById('objects-label');
+      const wsUrlEl = document.getElementById('ws-url');
+      const logEl = document.getElementById('log');
+
+      const wsUrl = `ws://${location.host}/api/v1/stream`;
+      wsUrlEl.textContent = wsUrl;
+
+      let ws = null;
+      let sessionId = crypto.randomUUID();
+      let sending = false;
+      let lastFrameSentAt = 0;
+      const FRAME_RATE_HZ = 6;
+
+      let fpsCount = 0;
+      let fpsLast = performance.now();
+
+      function logLine(msg) {
+        const ts = new Date().toLocaleTimeString();
+        logEl.textContent = `[${ts}] ${msg}\n` + logEl.textContent;
+      }
+
+      async function checkApi() {
+        try {
+          const res = await fetch('/api/v1/health/live');
+          if (res.ok) {
+            apiDot.classList.add('ok');
+            apiStatus.textContent = 'API: healthy';
+            logLine('Backend is healthy.');
+          } else {
+            apiDot.classList.add('bad');
+            apiStatus.textContent = 'API: error ' + res.status;
+            logLine('Backend health check failed: ' + res.status);
+          }
+        } catch (e) {
+          apiDot.classList.add('bad');
+          apiStatus.textContent = 'API: unreachable';
+          logLine('Backend not reachable at /api/v1/health/live');
+        }
+      }
+
+      async function enableCamera() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' },
+            audio: false,
+          });
+          video.srcObject = stream;
+          await video.play();
+
+          const { videoWidth, videoHeight } = video;
+          if (videoWidth && videoHeight) {
+            canvas.width = videoWidth;
+            canvas.height = videoHeight;
+          }
+          btnPermissions.textContent = 'Camera Enabled';
+          btnPermissions.disabled = true;
+          logLine('Camera permission granted.');
+        } catch (e) {
+          logLine('Camera permission denied: ' + e.message);
+          alert('Please allow camera access in your browser.');
+        }
+      }
+
+      function connectWs() {
+        if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+          return;
+        }
+        ws = new WebSocket(wsUrl);
+        wsBadge.textContent = 'WS: connecting…';
+        logLine('Connecting WebSocket…');
+
+        ws.onopen = () => {
+          wsBadge.textContent = 'WS: connected';
+          wsBadge.style.color = '#22c55e';
+          sending = true;
+          logLine('WebSocket connected.');
+          pumpFrames();
+        };
+
+        ws.onclose = (ev) => {
+          wsBadge.textContent = 'WS: closed';
+          wsBadge.style.color = '#f97316';
+          sending = false;
+          logLine(`WebSocket closed: code=${ev.code} reason=${ev.reason || '-'}`);
+        };
+
+        ws.onerror = (ev) => {
+          logLine('WebSocket error.');
+        };
+
+        ws.onmessage = (ev) => {
+          try {
+            const data = JSON.parse(ev.data);
+            if (data.error) {
+              logLine('Server error: ' + data.error);
+              return;
+            }
+            const nav = data.navigation;
+            const objs = data.detections?.objects || [];
+            const isDanger = nav?.is_danger_alert;
+            const decision = nav?.decision || 'CLEAR';
+
+            decisionMain.textContent = decision;
+            decisionSub.textContent =
+              nav?.speech_text_en || 'Waiting for navigation guidance…';
+
+            decisionChip.classList.toggle('danger', !!isDanger);
+            dangerDot.classList.toggle('bad', !!isDanger);
+            dangerLabel.textContent = isDanger ? 'Danger detected!' : 'No danger';
+
+            navLabel.textContent = decision;
+            objectsLabel.textContent =
+              objs.length === 0
+                ? 'None'
+                : objs
+                    .slice(0, 4)
+                    .map((o) => `${o.class_name || o.className} · ${o.region}`)
+                    .join(', ');
+
+            if (typeof data.server_processing_ms === 'number') {
+              latencyLabel.textContent = `Latency: ${data.server_processing_ms.toFixed(0)} ms`;
+            }
+          } catch (e) {
+            logLine('Parse error: ' + e.message);
+          }
+        };
+      }
+
+      function frameToBase64() {
+        if (!video.videoWidth || !video.videoHeight) return null;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.65);
+        const idx = dataUrl.indexOf('base64,');
+        return idx >= 0 ? dataUrl.slice(idx + 7) : null;
+      }
+
+      function pumpFrames() {
+        if (!sending || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+        const now = performance.now();
+        if (now - lastFrameSentAt < 1000 / FRAME_RATE_HZ) {
+          requestAnimationFrame(pumpFrames);
+          return;
+        }
+        lastFrameSentAt = now;
+
+        const imgB64 = frameToBase64();
+        if (imgB64) {
+          const payload = {
+            frame_id: crypto.randomUUID(),
+            image_base64: imgB64,
+            timestamp_ms: Date.now(),
+            session_id: sessionId,
+            preferred_language: 'en',
+          };
+          try {
+            ws.send(JSON.stringify(payload));
+            fpsCount++;
+          } catch {
+            // ignore
+          }
+        }
+
+        const t = performance.now();
+        if (t - fpsLast >= 1000) {
+          fpsLabel.textContent = `FPS: ${fpsCount}`;
+          fpsCount = 0;
+          fpsLast = t;
+        }
+
+        requestAnimationFrame(pumpFrames);
+      }
+
+      btnPermissions.addEventListener('click', enableCamera);
+      btnConnect.addEventListener('click', () => {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          alert('Your browser does not support camera access.');
+          return;
+        }
+        if (!video.srcObject) {
+          alert('Please click "Enable Camera" first.');
+          return;
+        }
+        connectWs();
+      });
+
+      checkApi();
+    </script>
+  </body>
+</html>
+

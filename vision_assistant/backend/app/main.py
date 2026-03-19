@@ -12,6 +12,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from prometheus_client import Counter, Histogram, make_asgi_app
 
 from app.api.routes import detection, stream, health
@@ -72,6 +73,13 @@ def create_app() -> FastAPI:
     # ── Prometheus metrics endpoint ───────────────────────────────────────────
     metrics_app = make_asgi_app()
     app.mount("/metrics", metrics_app)
+
+    # ── Simple web UI (browser client) ────────────────────────────────────────
+    app.mount(
+        "/web",
+        StaticFiles(directory="app/web", html=True),
+        name="web",
+    )
 
     # ── Request timing middleware ─────────────────────────────────────────────
     @app.middleware("http")

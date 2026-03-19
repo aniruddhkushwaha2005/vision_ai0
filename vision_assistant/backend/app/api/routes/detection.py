@@ -7,7 +7,6 @@ Used for:
   - Offline photo processing
 """
 
-import base64
 import logging
 
 import cv2

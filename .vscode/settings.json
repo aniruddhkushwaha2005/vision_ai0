@@ -1,0 +1,14 @@
+{
+    "python.defaultInterpreterPath": "vision_assistant/backend/venv/Scripts/python.exe",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.formatting.provider": "none",
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.testing.pytestArgs": [
+        "vision_assistant/backend/tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}

@@ -1,0 +1,243 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-dark: #0f1115;
+  --glass-bg: rgba(20, 22, 28, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --primary: #3b82f6;
+  --danger: #dc2626;
+  --success: #22c55e;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: white;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.app-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: border 0.3s ease;
+}
+
+.app-container.danger-mode {
+  border: 6px solid var(--danger);
+}
+
+.vision-camera-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: var(--bg-dark);
+}
+
+.vision-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.top-bar {
+  position: absolute;
+  top: env(safe-area-inset-top, 24px);
+  left: 20px;
+  right: 20px;
+  height: 48px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  z-index: 10;
+}
+
+.conn-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.conn-dot.connected { background-color: var(--success); }
+.conn-dot.disconnected { background-color: var(--danger); }
+.conn-dot.connecting { background-color: #eab308; }
+
+.status-text {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  flex: 1;
+}
+
+.fps-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+
+.nav-card {
+  position: absolute;
+  bottom: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 24px;
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 240px;
+  z-index: 10;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-card-danger {
+  background: rgba(180, 20, 20, 0.85);
+  border-color: var(--danger);
+}
+
+.nav-icon {
+  font-size: 80px;
+  line-height: 1;
+  font-weight: 700;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  margin-bottom: 8px;
+}
+
+.nav-label {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.speech-text {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px;
+  text-align: center;
+  margin-top: 12px;
+  max-width: 280px;
+  line-height: 1.4;
+}
+
+.objects-bar {
+  position: absolute;
+  bottom: 16%;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  z-index: 10;
+}
+
+.object-pill {
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.bottom-bar {
+  position: absolute;
+  bottom: env(safe-area-inset-bottom, 24px);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  z-index: 10;
+}
+
+.ctrl-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+  gap: 4px;
+}
+
+.ctrl-btn span {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ctrl-btn:hover {
+  transform: scale(1.05);
+  background: rgba(40, 44, 52, 0.8);
+}
+
+.ctrl-btn:active {
+  transform: scale(0.95);
+}
+
+.ctrl-btn.primary {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.ctrl-btn.primary.active {
+  background: rgba(220, 38, 38, 0.2);
+  border-color: rgba(220, 38, 38, 0.4);
+  color: var(--danger);
+}
+
+.danger-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(220, 38, 38, 0.2);
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.danger-icon-large {
+  color: var(--danger);
+  opacity: 0.5;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.5); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 0.5; }
+}
+
+.pulse {
+  animation: pulse 1s infinite;
+}

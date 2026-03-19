@@ -1,0 +1,185 @@
+﻿Collecting fastapi==0.115.0 (from -r requirements.txt (line 2))
+  Using cached fastapi-0.115.0-py3-none-any.whl.metadata (27 kB)
+Requirement already satisfied: uvicorn==0.30.6 in c:\users\hp\onedrive\desktop\vision_assistant\vision_assistant\backend\venv\lib\site-packages (from uvicorn[standard]==0.30.6->-r requirements.txt (line 3)) (0.30.6)
+Collecting pydantic==2.8.2 (from -r requirements.txt (line 4))
+  Using cached pydantic-2.8.2-py3-none-any.whl.metadata (125 kB)
+Collecting pydantic-settings==2.4.0 (from -r requirements.txt (line 5))
+  Using cached pydantic_settings-2.4.0-py3-none-any.whl.metadata (3.5 kB)
+Collecting python-multipart==0.0.9 (from -r requirements.txt (line 6))
+  Using cached python_multipart-0.0.9-py3-none-any.whl.metadata (2.5 kB)
+Collecting ultralytics==8.2.90 (from -r requirements.txt (line 9))
+  Using cached ultralytics-8.2.90-py3-none-any.whl.metadata (41 kB)
+Collecting opencv-python-headless==4.10.0.84 (from -r requirements.txt (line 10))
+  Using cached opencv_python_headless-4.10.0.84-cp37-abi3-win_amd64.whl.metadata (20 kB)
+Collecting numpy==1.26.4 (from -r requirements.txt (line 11))
+  Using cached numpy-1.26.4.tar.gz (15.8 MB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Installing backend dependencies: started
+  Installing backend dependencies: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'error'
+.\venv\Scripts\python.e
+xe :   error: subproces
+s-exited-with-error
+At line:1 char:1
++ .\venv\Scripts\python
+.exe -m pip install -r 
+requirements.txt > 
+pip_lo ...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (  error: subp   
+ rocess-exited-with    
+-error:String) [],     
+RemoteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+  
+  Preparing metadata 
+(pyproject.toml) did 
+not run successfully.
+  exit code: 1
+  
+  [21 lines of output]
+  + C:\Users\hp\OneDriv
+e\Desktop\vision_assist
+ant\vision_assistant\ba
+ckend\venv\Scripts\pyth
+on.exe C:\Users\hp\AppD
+ata\Local\Temp\pip-inst
+all-bx6vvrxc\numpy_dcc4
+b78fd34d408c8fad5cd3430
+f740b\vendored-meson\me
+son\meson.py setup C:\U
+sers\hp\AppData\Local\T
+emp\pip-install-bx6vvrx
+c\numpy_dcc4b78fd34d408
+c8fad5cd3430f740b C:\Us
+ers\hp\AppData\Local\Te
+mp\pip-install-bx6vvrxc
+\numpy_dcc4b78fd34d408c
+8fad5cd3430f740b\.meson
+py-7w0uo7z5 
+-Dbuildtype=release 
+-Db_ndebug=if-release 
+-Db_vscrt=md --native-f
+ile=C:\Users\hp\AppData
+\Local\Temp\pip-install
+-bx6vvrxc\numpy_dcc4b78
+fd34d408c8fad5cd3430f74
+0b\.mesonpy-7w0uo7z5\me
+son-python-native-file.
+ini
+  The Meson build 
+system
+  Version: 1.2.99
+  Source dir: C:\Users\
+hp\AppData\Local\Temp\p
+ip-install-bx6vvrxc\num
+py_dcc4b78fd34d408c8fad
+5cd3430f740b
+  Build dir: C:\Users\h
+p\AppData\Local\Temp\pi
+p-install-bx6vvrxc\nump
+y_dcc4b78fd34d408c8fad5
+cd3430f740b\.mesonpy-7w
+0uo7z5
+  Build type: native 
+build
+  Project name: NumPy
+  Project version: 
+1.26.4
+  WARNING: Failed to 
+activate VS 
+environment: Could not 
+parse vswhere.exe 
+output
+  
+  ..\meson.build:1:0: 
+ERROR: Unknown 
+compiler(s): [['icl'], 
+['cl'], ['cc'], 
+['gcc'], ['clang'], 
+['clang-cl'], ['pgcc']]
+  The following 
+exception(s) were 
+encountered:
+  Running `icl ""` 
+gave "[WinError 2] The 
+system cannot find the 
+file specified"
+  Running `cl /?` gave 
+"[WinError 2] The 
+system cannot find the 
+file specified"
+  Running `cc 
+--version` gave 
+"[WinError 2] The 
+system cannot find the 
+file specified"
+  Running `gcc 
+--version` gave 
+"[WinError 2] The 
+system cannot find the 
+file specified"
+  Running `clang 
+--version` gave 
+"[WinError 2] The 
+system cannot find the 
+file specified"
+  Running `clang-cl 
+/?` gave "[WinError 2] 
+The system cannot find 
+the file specified"
+  Running `pgcc 
+--version` gave 
+"[WinError 2] The 
+system cannot find the 
+file specified"
+  
+  A full log can be 
+found at C:\Users\hp\Ap
+pData\Local\Temp\pip-in
+stall-bx6vvrxc\numpy_dc
+c4b78fd34d408c8fad5cd34
+30f740b\.mesonpy-7w0uo7
+z5\meson-logs\meson-log
+.txt
+  [end of output]
+  
+  note: This error 
+originates from a 
+subprocess, and is 
+likely not a problem 
+with pip.
+
+[notice] A new release 
+of pip is available: 
+25.1.1 -> 26.0.1
+[notice] To update, 
+run: python.exe -m pip 
+install --upgrade pip
+error: metadata-generat
+ion-failed
+
+Encountered error 
+while generating 
+package metadata.
+
+See above for output.
+
+note: This is an issue 
+with the package 
+mentioned above, not 
+pip.
+hint: See above for 
+details.

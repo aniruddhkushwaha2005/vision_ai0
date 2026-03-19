@@ -9,7 +9,6 @@
  *   - Audio playback queue
  */
 
-import { EventEmitter } from 'events';
 import Sound from 'react-native-sound';
 import RNFS from 'react-native-fs';
 import uuid from 'react-native-uuid';
@@ -34,21 +33,51 @@ type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecti
 
 const RECONNECT_DELAYS = [1000, 2000, 5000, 10000, 30000]; // exponential-ish backoff
 
-class VisionWebSocketService extends EventEmitter {
+type VisionWsEvents = {
+  connected: () => void;
+  disconnected: (code: number) => void;
+  error: (event: unknown) => void;
+  result: (result: StreamResult) => void;
+  stateChange: (state: ConnectionState) => void;
+};
+
+class VisionWebSocketService {
   private ws: WebSocket | null = null;
   private sessionId: string;
   private serverUrl: string;
   private state: ConnectionState = 'disconnected';
   private reconnectAttempt = 0;
-  private reconnectTimer: NodeJS.Timeout | null = null;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private preferredLang: 'en' | 'hi' = 'en';
   private audioQueue: string[] = [];
   private isPlayingAudio = false;
+  private listeners: { [K in keyof VisionWsEvents]: Set<VisionWsEvents[K]> } = {
+    connected: new Set(),
+    disconnected: new Set(),
+    error: new Set(),
+    result: new Set(),
+    stateChange: new Set(),
+  };
 
   constructor(serverUrl: string) {
-    super();
     this.serverUrl = serverUrl;
     this.sessionId = uuid.v4() as string;
+  }
+
+  on<K extends keyof VisionWsEvents>(event: K, handler: VisionWsEvents[K]) {
+    this.listeners[event].add(handler);
+    return () => this.listeners[event].delete(handler);
+  }
+
+  removeAllListeners() {
+    (Object.keys(this.listeners) as Array<keyof VisionWsEvents>).forEach((k) => {
+      this.listeners[k].clear();
+    });
+  }
+
+  private emit<K extends keyof VisionWsEvents>(event: K, ...args: Parameters<VisionWsEvents[K]>) {
+    const handlers = this.listeners[event] as Set<(...a: unknown[]) => unknown>;
+    handlers.forEach((handler) => handler(...(args as unknown[])));
   }
 
   connect() {
@@ -108,7 +137,7 @@ class VisionWebSocketService extends EventEmitter {
     this.emit('connected');
   }
 
-  private _onMessage(event: MessageEvent) {
+  private _onMessage(event: any) {
     try {
       const data = JSON.parse(event.data as string);
 
@@ -145,12 +174,12 @@ class VisionWebSocketService extends EventEmitter {
     }
   }
 
-  private _onError(event: Event) {
+  private _onError(event: unknown) {
     console.error('[WS] Error:', event);
     this.emit('error', event);
   }
 
-  private _onClose(event: CloseEvent) {
+  private _onClose(event: any) {
     console.log('[WS] Closed:', event.code, event.reason);
     this.ws = null;
     if (event.code !== 1000) {

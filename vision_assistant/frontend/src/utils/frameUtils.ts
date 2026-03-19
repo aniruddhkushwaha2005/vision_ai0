@@ -10,8 +10,28 @@
 
 import { Frame } from 'react-native-vision-camera';
 
-const JPEG_QUALITY = 0.65;
 const MAX_DIMENSION = 640; // resize to max 640px on longest side before encoding
+
+// Worklet-safe base64 encoder (avoids relying on `btoa`, which isn't typed/available everywhere)
+const BASE64_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+function base64FromBytes(bytes: Uint8Array): string {
+  'worklet';
+  let out = '';
+  const len = bytes.length;
+  let i = 0;
+  while (i < len) {
+    const a = bytes[i++] ?? 0;
+    const b = i < len ? (bytes[i++] ?? 0) : 0;
+    const c = i < len ? (bytes[i++] ?? 0) : 0;
+
+    const triple = (a << 16) | (b << 8) | c;
+    out += BASE64_ALPHABET[(triple >> 18) & 63];
+    out += BASE64_ALPHABET[(triple >> 12) & 63];
+    out += i - 2 < len ? BASE64_ALPHABET[(triple >> 6) & 63] : '=';
+    out += i - 1 < len ? BASE64_ALPHABET[triple & 63] : '=';
+  }
+  return out;
+}
 
 /**
  * Encode a VisionCamera Frame to base64 JPEG string.
@@ -22,14 +42,8 @@ export function encodeFrameToBase64(frame: Frame): string {
   // For production use the native plugin approach below:
   const buffer = frame.toArrayBuffer();
   const uint8 = new Uint8Array(buffer);
-  
-  // Convert to base64 — Worklet-safe implementation
-  let binary = '';
-  const len = uint8.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(uint8[i]);
-  }
-  return btoa(binary);
+
+  return base64FromBytes(uint8);
 }
 
 /**

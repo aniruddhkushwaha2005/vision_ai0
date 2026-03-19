@@ -1,0 +1,13 @@
+name: vision-assistant
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  # CPU-only by default (works on any Windows laptop)
+  - pytorch
+  - torchvision
+  - cpuonly
+  - pip:
+      - -r requirements.txt

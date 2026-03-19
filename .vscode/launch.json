@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "FastAPI: Run Backend",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "python": "${workspaceFolder}/vision_assistant/backend/venv/Scripts/python.exe",
+            "args": [
+                "app.main:app",
+                "--reload",
+                "--port",
+                "8000"
+            ],
+            "jinja": true,
+            "cwd": "${workspaceFolder}/vision_assistant/backend",
+            "justMyCode": true
+        },
+        {
+            "name": "React Native: Run Android",
+            "type": "react-native",
+            "request": "launch",
+            "platform": "android",
+            "cwd": "${workspaceFolder}/vision_assistant/frontend"
+        },
+        {
+            "name": "React Native: Run iOS",
+            "type": "react-native",
+            "request": "launch",
+            "platform": "ios",
+            "cwd": "${workspaceFolder}/vision_assistant/frontend"
+        }
+    ]
+}
